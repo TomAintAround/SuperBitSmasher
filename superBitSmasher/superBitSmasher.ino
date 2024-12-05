@@ -33,7 +33,5 @@ boolean inputValido(String input) {
     for (byte i = 0; i < input.length(); i++) {
         if (input[i] < '0' || input[i] > '0') return true;
     }
-        
-    if (input.toInt() >= 0 && input.toInt() <= 255) return false;
     return false;
 }
