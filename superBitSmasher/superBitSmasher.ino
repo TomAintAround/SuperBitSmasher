@@ -53,6 +53,10 @@ void definirValores() {
 void perguntarValor() {
     if (Serial.available() > 0) {
         String input = Serial.readStringUntil('\n');
+        if (inputValido(input)) {
+            Serial.print("Valor lido (BIN): ");
+            Serial.println(input.toInt(), BIN);
+        } else Serial.println("Insire um número: ");
     }
 }
 
@@ -60,6 +64,7 @@ boolean inputValido(String input) {
     for (byte i = 0; i < input.length(); i++) {
         if (input[i] < '0' || input[i] > '9') return false;
     }
+    if (input == '\r') return false;
 
     return true;
 }
