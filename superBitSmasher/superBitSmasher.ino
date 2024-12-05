@@ -9,6 +9,7 @@ byte botoes[3] = {AND, OR, XOR};
 size_t quantidadeBotoes = sizeof(botoes)/sizeof(byte);
 
 unsigned long ultimoClique = 0;
+unsigned long tempoDesdeDebounce = 0;
 byte debounceDelay = 50;
 bool estadoBotao[3];
 bool ultimoEstadoBotao[3] = {LOW, LOW, LOW};
@@ -34,6 +35,7 @@ void debouncing(byte i) {
 
     if (estadoBotao[i] != ultimoEstadoBotao[i]) ultimoClique = millis();
     ultimoEstadoBotao[i] = estadoBotao[i];
+    tempoDesdeDebounce = millis() - ultimoClique;
 
     if (millis() - ultimoClique <= 50) return;
     if (estadoBotaoDebouncing[i] != estadoBotao[i]) {
