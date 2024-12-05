@@ -31,7 +31,7 @@ void perguntarValor() {
 
 boolean inputValido(String input) {
     for (byte i = 0; i < input.length(); i++) {
-        if (input[i] < '0' || input[i] > '0') return true;
+        if (input[i] < '0' || input[i] > '0') return false;
     }
-    return false;
+    return true;
 }
