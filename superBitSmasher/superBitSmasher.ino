@@ -60,6 +60,7 @@ void definirValores() {
     Serial.println(target, BIN);
     Serial.print("Valor inicial: ");
     Serial.println(valorInicial, BIN);
+    Serial.println("Intoduza um valor: ");
 }
 
 void perguntarValor() {
