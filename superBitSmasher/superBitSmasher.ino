@@ -1,6 +1,8 @@
 byte target = 0;
 byte valorInicial = 0;
 byte estadoJogo = 1;
+bool andAtivo = true;
+bool xorAtivo = false;
 
 byte AND = 4;
 byte OR = 3;
@@ -44,6 +46,16 @@ void debouncing(byte i) {
 void definirValores() {
     target = random(256);
     valorInicial = random(256);
+    andAtivo = target & 0b10;
+    xorAtivo = !andAtivo;
+
+    Serial.println();
+    Serial.print("Operacoes permitidas: ");
+    Serial.print("OR (branco) | ");
+    if (andAtivo) Serial.println("AND (vermelho)");
+    else Serial.println("XOR (azul)");
+
+    Serial.println("-=-=-=[ NOVA RONDA ]=-=-=-");
     Serial.print("Target: ");
     Serial.println(target, BIN);
     Serial.print("Valor inicial: ");
