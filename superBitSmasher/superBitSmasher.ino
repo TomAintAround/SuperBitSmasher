@@ -38,9 +38,7 @@ void debouncing(byte i) {
     tempoDesdeDebounce = millis() - ultimoClique;
 
     if (millis() - ultimoClique <= 50) return;
-    if (estadoBotaoDebouncing[i] != estadoBotao[i]) {
-        estadoBotaoDebouncing[i] = estadoBotao[i];
-    }
+    if (estadoBotaoDebouncing[i] != estadoBotao[i]) estadoBotaoDebouncing[i] = estadoBotao[i];
 }
 
 void definirValores() {
