@@ -21,6 +21,7 @@ void setup() {
     Serial.begin(9600);
     randomSeed(analogRead(A0));
     for (byte i = 0; i < quantidadeBotoes; i++) pinMode(botoes[i], INPUT_PULLUP);
+    delay(1500);
     definirValores();
 }
 
