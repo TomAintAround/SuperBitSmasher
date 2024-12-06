@@ -1,8 +1,10 @@
-byte target = 0;
-byte valorInicial = 0;
+byte target;
+byte base;
+int numeroDado;
 byte estadoJogo = 1;
-bool andAtivo = true;
-bool xorAtivo = false;
+bool andAtivo;
+bool xorAtivo;
+bool inicio = true;
 
 byte AND = 4;
 byte OR = 3;
