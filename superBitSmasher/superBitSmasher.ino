@@ -23,36 +23,21 @@ void setup() {
     Serial.begin(9600);
     randomSeed(analogRead(A0));
     for (byte i = 0; i < quantidadeBotoes; i++) pinMode(botoes[i], INPUT_PULLUP);
+
+    target = random(256);
+    base = random(256);
+    andAtivo = target & 0b10;
+    xorAtivo = !andAtivo;
+
     delay(1500);
-    definirValores();
 }
 
 void loop() {
     for (byte i = 0; i < quantidadeBotoes; i++) debouncing(i);
 
-    if (estadoJogo == 1) {
-        perguntarValor();
-    }
-}
-
-void definirValores() {
-    target = random(256);
-    valorInicial = random(256);
-    andAtivo = target & 0b10;
-    xorAtivo = !andAtivo;
-
-    Serial.println();
-    Serial.print("Operacoes permitidas: ");
-    Serial.print("OR (branco) | ");
-    if (andAtivo) Serial.println("AND (vermelho)");
-    else Serial.println("XOR (azul)");
-
-    Serial.println("-=-=-=[ NOVA RONDA ]=-=-=-");
-    Serial.print("Target: ");
-    Serial.println(target, BIN);
-    Serial.print("Valor inicial: ");
-    Serial.println(valorInicial, BIN);
-    Serial.println("Intoduza um valor: ");
+    if (estadoJogo == 1) inicioRonda();
+    else if (estadoJogo == 2) perguntarValor();
+    else if (estadoJogo == 3) perguntarOperacao();
 }
 
 void debouncing(byte i) {
@@ -66,6 +51,46 @@ void debouncing(byte i) {
     if (estadoBotaoDebouncing[i] != estadoBotao[i]) estadoBotaoDebouncing[i] = estadoBotao[i];
 }
 
+void inicioRonda() {
+    Serial.println();
+    if (inicio) {
+        Serial.println("-=-=-=[ NOVA RONDA ]=-=-=-");
+        inicio = false;
+    }
+    printOperacoes();
+    printValores();
+    Serial.println("Intoduza um valor: ");
+    estadoJogo++;
+}
+
+void printOperacoes() {
+    Serial.print("Operacoes permitidas: ");
+    Serial.print("OR (branco) | ");
+    if (andAtivo) Serial.println("AND (vermelho)");
+    else Serial.println("XOR (azul)");
+}
+
+void printValores() {
+    Serial.print("Target: ");
+    Serial.println(target, BIN);
+    Serial.print("Valor base: ");
+    Serial.println(base, BIN);
+}
+
+void perguntarValor() {
+    if (Serial.available() > 0) {
+        String input = Serial.readStringUntil('\n');
+        if (inputValido(input)) {
+            Serial.print("Valor lido (BIN): ");
+            Serial.println(input.toInt(), BIN);
+
+            printOperacoes();
+            Serial.println("Clique em um dos botoes para aplicar uma operacao.");
+            estadoJogo++;
+        } else Serial.println("Insire um numero: ");
+    }
+}
+
 boolean inputValido(String input) {
     for (byte i = 0; i < input.length(); i++) {
         if (input[i] < '0' || input[i] > '9') return false;
@@ -75,12 +100,7 @@ boolean inputValido(String input) {
     return true;
 }
 
-void perguntarValor() {
-    if (Serial.available() > 0) {
-        String input = Serial.readStringUntil('\n');
-        if (inputValido(input)) {
-            Serial.print("Valor lido (BIN): ");
-            Serial.println(input.toInt(), BIN);
-        } else Serial.println("Insire um número: ");
-    }
+void perguntarOperacao(boolean 3) {
+    delay(2000);
+    estadoJogo = 1;
 }
