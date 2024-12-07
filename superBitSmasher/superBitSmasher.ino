@@ -12,8 +12,8 @@ byte XOR = 2;
 byte botoes[3] = {AND, OR, XOR};
 size_t quantidadeBotoes = sizeof(botoes)/sizeof(byte);
 
-unsigned long ultimoClique = 0;
-unsigned long tempoDesdeDebounce = 0;
+unsigned long ultimoClique[3] = {0, 0, 0};
+unsigned long tempoDesdeDebounce[3] = {0, 0, 0};
 byte debounceDelay = 50;
 bool estadoBotao[3];
 bool ultimoEstadoBotao[3] = {LOW, LOW, LOW};
@@ -43,11 +43,11 @@ void loop() {
 void debouncing(byte i) {
     estadoBotao[i] = !digitalRead(botoes[i]);
 
-    if (estadoBotao[i] != ultimoEstadoBotao[i]) ultimoClique = millis();
+    if (estadoBotao[i] != ultimoEstadoBotao[i]) ultimoClique[i] = millis();
     ultimoEstadoBotao[i] = estadoBotao[i];
-    tempoDesdeDebounce = millis() - ultimoClique;
+    tempoDesdeDebounce[i] = millis() - ultimoClique[i];
 
-    if (millis() - ultimoClique <= 50) return;
+    if (millis() - ultimoClique[i] <= 50) return;
     if (estadoBotaoDebouncing[i] != estadoBotao[i]) estadoBotaoDebouncing[i] = estadoBotao[i];
 }
 
@@ -100,7 +100,7 @@ boolean inputValido(String input) {
     return true;
 }
 
-void perguntarOperacao(boolean 3) {
+void perguntarOperacao() {
     delay(2000);
     estadoJogo = 1;
 }
