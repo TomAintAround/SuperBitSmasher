@@ -12,6 +12,12 @@ byte XOR = 2;
 byte botoes[3] = {AND, OR, XOR};
 size_t quantidadeBotoes = sizeof(botoes)/sizeof(byte);
 
+int tempoLimiteSegundos = 30;
+byte leds[4] = {11, 10, 9, 8};
+size_t quantidadeLeds = sizeof(leds)/sizeof(byte);
+unsigned long contador = 0;
+unsigned long redutor = 0;
+
 unsigned long ultimoClique[3] = {0, 0, 0};
 unsigned long tempoDesdeClique[3] = {0, 0, 0};
 byte debounceDelay = 50;
@@ -23,12 +29,14 @@ void setup() {
     Serial.begin(9600);
     randomSeed(analogRead(A0));
     for (byte i = 0; i < quantidadeBotoes; i++) pinMode(botoes[i], INPUT_PULLUP);
+    for (byte i = 0; i < quantidadeLeds; i++) pinMode(leds[i], INPUT_PULLUP);
     delay(2000);
     definirValores();
 }
 
 void loop() {
     for (byte i = 0; i < quantidadeBotoes; i++) debouncing(i);
+    timer();
 
     if (estadoJogo == 1) inicioRonda();
     else if (estadoJogo == 2) perguntarValor();
@@ -51,6 +59,28 @@ void debouncing(byte i) {
 
     if (tempoDesdeClique[i] <= 50) return;
     if (estadoBotaoDebouncing[i] != estadoBotao[i]) estadoBotaoDebouncing[i] = estadoBotao[i];
+}
+
+void timer() {
+    unsigned long contadorReferencia = millis() - redutor;
+    if (contadorReferencia - contador * 1000 >= 1000) contador++;
+    for (byte mul = 1; mul <= quantidadeLeds; mul++) {
+        if (contador >= mul * tempoLimiteSegundos / 4) digitalWrite(leds[mul - 1], HIGH);
+        else digitalWrite(leds[mul - 1], LOW);
+    }
+    
+    if (contador >= tempoLimiteSegundos) {
+        Serial.println("O tempo acabou!");
+        resetTimer();
+        estadoJogo = 1;
+        inicio = true;
+        definirValores();
+    }
+}
+
+void resetTimer() {
+    redutor += contador * 1000;
+    contador = 0;
 }
 
 void inicioRonda() {
@@ -116,6 +146,7 @@ void perguntarOperacao() {
             inicio = true;
         }
         estadoJogo = 1;
+        resetTimer();
     }
 }
 
