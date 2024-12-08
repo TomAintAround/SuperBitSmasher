@@ -37,6 +37,13 @@ void setup() {
 void loop() {
     for (byte i = 0; i < quantidadeBotoes; i++) debouncing(i);
     timer();
+    if (estadoBotaoDebouncing[1] && tempoDesdeClique[1] == 2000) {
+        Serial.println("Iniciando uma nova ronda");
+        resetTimer();
+        inicio = true;
+        definirValores();
+        estadoJogo = 1;
+    }
 
     if (estadoJogo == 1) inicioRonda();
     else if (estadoJogo == 2) perguntarValor();
