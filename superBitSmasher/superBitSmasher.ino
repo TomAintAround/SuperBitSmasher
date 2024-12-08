@@ -13,7 +13,7 @@ byte botoes[3] = {AND, OR, XOR};
 size_t quantidadeBotoes = sizeof(botoes)/sizeof(byte);
 
 unsigned long ultimoClique[3] = {0, 0, 0};
-unsigned long tempoDesdeDebounce[3] = {0, 0, 0};
+unsigned long tempoDesdeClique[3] = {0, 0, 0};
 byte debounceDelay = 50;
 bool estadoBotao[3];
 bool ultimoEstadoBotao[3] = {LOW, LOW, LOW};
@@ -23,13 +23,8 @@ void setup() {
     Serial.begin(9600);
     randomSeed(analogRead(A0));
     for (byte i = 0; i < quantidadeBotoes; i++) pinMode(botoes[i], INPUT_PULLUP);
-
-    target = random(256);
-    base = random(256);
-    andAtivo = target & 0b10;
-    xorAtivo = !andAtivo;
-
-    delay(1500);
+    delay(2000);
+    definirValores();
 }
 
 void loop() {
@@ -40,14 +35,21 @@ void loop() {
     else if (estadoJogo == 3) perguntarOperacao();
 }
 
+void definirValores() {
+    target = random(256);
+    base = random(256);
+    andAtivo = target & 0b10;
+    xorAtivo = !andAtivo;
+}
+
 void debouncing(byte i) {
     estadoBotao[i] = !digitalRead(botoes[i]);
 
     if (estadoBotao[i] != ultimoEstadoBotao[i]) ultimoClique[i] = millis();
     ultimoEstadoBotao[i] = estadoBotao[i];
-    tempoDesdeDebounce[i] = millis() - ultimoClique[i];
+    tempoDesdeClique[i] = millis() - ultimoClique[i];
 
-    if (millis() - ultimoClique[i] <= 50) return;
+    if (tempoDesdeClique[i] <= 50) return;
     if (estadoBotaoDebouncing[i] != estadoBotao[i]) estadoBotaoDebouncing[i] = estadoBotao[i];
 }
 
@@ -81,8 +83,9 @@ void perguntarValor() {
     if (Serial.available() > 0) {
         String input = Serial.readStringUntil('\n');
         if (inputValido(input)) {
+            numeroDado = input.toInt();
             Serial.print("Valor lido (BIN): ");
-            Serial.println(input.toInt(), BIN);
+            Serial.println(numeroDado, BIN);
 
             printOperacoes();
             Serial.println("Clique em um dos botoes para aplicar uma operacao.");
@@ -101,6 +104,33 @@ boolean inputValido(String input) {
 }
 
 void perguntarOperacao() {
-    delay(2000);
-    estadoJogo = 1;
+    boolean botaoPremido = false;
+    for (byte i = 0; i < quantidadeBotoes; i++) {
+        if (estadoBotaoDebouncing[i] && tempoDesdeClique[i] <= 1) botaoPremido = verificarBotao(i);
+    }
+
+    if (botaoPremido) {
+        if (base == target) {
+            Serial.println("Parabéns! Venceste!");
+            definirValores();
+            inicio = true;
+        }
+        estadoJogo = 1;
+    }
+}
+
+boolean verificarBotao(byte i) {
+    if (botoes[i] == OR) {
+        base = base | numeroDado;
+        return true;
+    } else if (botoes[i] == AND && andAtivo) {
+        base = base & numeroDado;
+        return true;
+    } else if (botoes[i] == XOR && xorAtivo) {
+        base = base ^ numeroDado;
+        return true;
+    }
+
+    Serial.println("Insire um numero valido.");
+    return false;
 }
