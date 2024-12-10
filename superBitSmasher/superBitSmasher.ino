@@ -27,16 +27,18 @@ bool estadoBotaoDebouncing[3] = {LOW, LOW, LOW};
 
 void setup() {
     Serial.begin(9600);
-    randomSeed(analogRead(A0));
+    randomSeed(analogRead(A0)); // É necessário para haver aleatoriadade
     for (byte i = 0; i < quantidadeBotoes; i++) pinMode(botoes[i], INPUT_PULLUP);
     for (byte i = 0; i < quantidadeLeds; i++) pinMode(leds[i], INPUT_PULLUP);
-    delay(2000);
+    delay(2000); // O serial monitor mostra coisas estranhas se não dar um pouco de tempo antes de começar o estadoJogo
     definirValores();
 }
 
 void loop() {
-    for (byte i = 0; i < quantidadeBotoes; i++) debouncing(i);
+    for (byte i = 0; i < quantidadeBotoes; i++) debouncing(i); // Ler os estados dos botões
     timer();
+
+    // Caso o botão OR seja premido durante 2 segundos
     if (estadoBotaoDebouncing[1] && tempoDesdeClique[1] == 2000) {
         Serial.println("Iniciando uma nova ronda");
         resetTimer();
@@ -53,6 +55,8 @@ void loop() {
 void definirValores() {
     target = random(256);
     base = random(256);
+
+    // AND fica ativo quando o bit 1 estiver aceso, e o XOR é o contrário
     andAtivo = target & 0b10;
     xorAtivo = !andAtivo;
 }
@@ -64,6 +68,7 @@ void debouncing(byte i) {
     ultimoEstadoBotao[i] = estadoBotao[i];
     tempoDesdeClique[i] = millis() - ultimoClique[i];
 
+    // Caso não passem 50 milissegundos, não irá atualizar o estado do botão
     if (tempoDesdeClique[i] <= 50) return;
     if (estadoBotaoDebouncing[i] != estadoBotao[i]) estadoBotaoDebouncing[i] = estadoBotao[i];
 }
@@ -71,11 +76,14 @@ void debouncing(byte i) {
 void timer() {
     unsigned long contadorReferencia = millis() - redutor;
     if (contadorReferencia - contador * 1000 >= 1000) contador++;
+    
+    // Ligar os LEDS
     for (byte mul = 1; mul <= quantidadeLeds; mul++) {
         if (contador >= mul * tempoLimiteSegundos / 4) digitalWrite(leds[mul - 1], HIGH);
         else digitalWrite(leds[mul - 1], LOW);
     }
     
+    // Em caso de derrota
     if (contador >= tempoLimiteSegundos) {
         Serial.println("O tempo acabou!");
         resetTimer();
@@ -86,7 +94,7 @@ void timer() {
 }
 
 void resetTimer() {
-    redutor += contador * 1000;
+    redutor += contador * 1000; // O quanto irá reduzir ao millis() para poder comparar o tempo depois
     contador = 0;
 }
 
@@ -135,7 +143,7 @@ boolean inputValido(String input) {
     for (byte i = 0; i < input.length(); i++) {
         if (input[i] < '0' || input[i] > '9') return false;
     }
-    if (input == '\r') return false;
+    if (input == '\r') return false; // caso o input seja literalmente nada
 
     return true;
 }
@@ -143,6 +151,7 @@ boolean inputValido(String input) {
 void perguntarOperacao() {
     boolean botaoPremido = false;
     for (byte i = 0; i < quantidadeBotoes; i++) {
+        //Caso o botão seja premido apenas rapidamente
         if (estadoBotaoDebouncing[i] && tempoDesdeClique[i] <= 1) botaoPremido = verificarBotao(i);
     }
 
