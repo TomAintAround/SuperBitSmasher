@@ -159,9 +159,9 @@ void perguntarOperacao() {
             Serial.println("Parabéns! Venceste!");
             definirValores();
             inicio = true;
+            resetTimer();
         }
         estadoJogo = 1;
-        resetTimer();
     }
 }
 
