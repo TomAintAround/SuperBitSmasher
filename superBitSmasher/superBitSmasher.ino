@@ -20,7 +20,6 @@ unsigned long redutor = 0;
 
 unsigned long ultimoClique[3] = {0, 0, 0};
 unsigned long tempoDesdeClique[3] = {0, 0, 0};
-byte debounceDelay = 50;
 bool estadoBotao[3];
 bool ultimoEstadoBotao[3] = {LOW, LOW, LOW};
 bool estadoBotaoDebouncing[3] = {LOW, LOW, LOW};
